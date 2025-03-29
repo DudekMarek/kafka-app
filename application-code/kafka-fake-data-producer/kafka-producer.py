@@ -33,6 +33,18 @@ class LogLevel(Enum):
             raise ValueError(f"Nieprawidłowy log level: {level_str}")
 
 
+def logging_setup() -> None:
+    try:
+        log_level_value = LogLevel.from_string(LOG_LEVEL)
+        logging.basicConfig(level=log_level_value.value, format="%(asctime)s - %(levelname)s - %(message)s")
+        logging.info(f"Log level set to {LOG_LEVEL}")
+    except ValueError as e:
+        print(e)
+        exit(1)
+
+
+
+
 def serialize_data(data: dict, encode_standard: str = "utf-8") -> bytes:
     """
     Serializuje dane do formatu JSON oraz koduje je w standardzie UTF-8
@@ -83,14 +95,8 @@ def send_fake_data(producer: KafkaProducer, faker: Faker, topic: str) -> None:
 
 if __name__ == "__main__":
 
-    # Ustawienie poziomu logowania aplikacji 
-    try:
-        log_level_value = LogLevel.from_string(LOG_LEVEL)
-        logging.basicConfig(level=log_level_value.value, format="%(asctime)s - %(levelname)s - %(message)s")
-        logging.info(f"Log level set to {LOG_LEVEL}")
-    except ValueError as e:
-        print(e)
-        exit(1)
+    #Konfiguracja logowania
+    logging_setup()
 
     # Utworznie obiektu KafkaProducer
     try:
