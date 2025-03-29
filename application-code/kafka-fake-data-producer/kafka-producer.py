@@ -34,6 +34,9 @@ class LogLevel(Enum):
 
 
 def logging_setup() -> None:
+    """
+    Tworzy bazową konfigurację logowania
+    """
     try:
         log_level_value = LogLevel.from_string(LOG_LEVEL)
         logging.basicConfig(level=log_level_value.value, format="%(asctime)s - %(levelname)s - %(message)s")
