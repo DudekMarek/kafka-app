@@ -2,11 +2,11 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-CMD requirements.txt /app/
+COPY requirements.txt /app/
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-CMD . /app
+COPY . /app
 
 CMD ["python", "./kafka-fake-data-consumer1.py"]
