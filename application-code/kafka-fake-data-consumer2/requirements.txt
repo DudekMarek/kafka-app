@@ -1,0 +1,4 @@
+faker
+kafka-python
+psycopg2-binary
+

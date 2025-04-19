@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  fake-data-producer:
+    image: kafka-fake-data-producer:0.0.1
+    container_name: fake-data-producer
+    environment:
+      KAFKA_BOOTSTRAP_SERVER: "192.168.1.174:9092"
+      KAFKA_TOPIC: "fake-data"
+      LOG_LEVEL: "INFO"
+
+  fake-data-consumer1:
+    image: kafka-fake-data-consumer1:0.0.1
+    container_name: fake-data-consumer1
+    environment:
+      KAFKA_BOOTSTRAP_SERVER: "192.168.1.174:9092"
+      KAFKA_TOPIC: "fake-data"
+      LOG_LEVEL: "INFO"
+      KAFKA_TOPIC_PRODUCER: "procesed-data"
