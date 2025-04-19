@@ -11,8 +11,8 @@ KAFKA_BOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVER", "localhost:90
 KAFKA_TOPIC = os.environ.get("KAFKA_TOPIC", "procesed_data")
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 DB_NAME = os.environ.get("DB_NAME", "kafka-app")
-DB_USER = os.environ.get("DB_USER", "kafka-app")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_USER = os.environ.get("DB_USER", "postgres")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_PORT = os.environ.get("DB_PORT", "5432")
 
@@ -104,9 +104,8 @@ def consume_and_store(consumer, conn) -> None:
     """
     try:
         for message in consumer:
-            data = deserialize_data(message)
+            data = deserialize_data(message.value)
             save_data_to_db(data, conn)
-            logging.info(f"Zapisano dane do bazy {data}")
 
     except Exception as e:
         logging.error(f"Nastąpił błąd: {e}")
@@ -115,7 +114,9 @@ def consume_and_store(consumer, conn) -> None:
         conn.close()
 
 if __name__ == "__main__":
+    
     logging_setup()
+    time.sleep(5)
 
     conn = psycopg2.connect(
             dbname=DB_NAME,

@@ -1,6 +1,7 @@
 import json
 import time
 import os
+import random
 import logging
 from enum import Enum
 from faker import Faker
@@ -9,6 +10,8 @@ from kafka import KafkaProducer
 KAFKA_BOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVER", "localhost:9092")
 KAFKA_TOPIC = os.environ.get("KAFKA_TOPIC", "fake_data")
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+MAX_SLEEP_TIME = int(os.environ.get("MAX_SLEEP_TIME", 5))
+MIN_SLEEP_TIME = int(os.environ.get("MIN_SLEEP_TIME", 1))
 
 class LogLevel(Enum):
     CRITICAL = logging.CRITICAL
@@ -123,4 +126,5 @@ if __name__ == "__main__":
     # Główna pętla działania aplikacji:
     while True:
         send_fake_data(producer=producer, faker=faker, topic=KAFKA_TOPIC)
-        time.sleep(5)
+        wait = random.randint(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
+        time.sleep(wait)

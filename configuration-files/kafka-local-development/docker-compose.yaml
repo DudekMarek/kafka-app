@@ -16,3 +16,11 @@ services:
       KAFKA_BOOTSTRAP_SERVER: "192.168.1.174:9092"
       KAFKA_TOPIC: "fake-data"
       LOG_LEVEL: "INFO"
+
+  fake-data-consumer2:
+    image: kafka-fake-data-consumer2:0.0.1
+    container_name: fake-data-consumer2
+    environment:
+      KAFKA_BOOTSTRAP_SERVER: "192.168.1.174:9092"
+      LOG_LEVEL: "INFO"
+      DB_HOST: "192.168.1.174"
