@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-app-config
+data:
+  KAFKA_BOOTSTRAP_SERVER: "192.168.1.174:9092"
+  KAFKA_TOPIC: "fake-data"
+  LOG_LEVEL: "INFO"
+  DB_HOST: "192.168.1.174"
