@@ -33,3 +33,11 @@ spec:
                 configMapKeyRef:
                   name: kafka-app-config
                   key: DB_HOST
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
