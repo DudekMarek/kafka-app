@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fake-data-consumer1
+  namespace: microservices
 spec:
   replicas: 1
   selector:

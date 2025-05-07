@@ -1,0 +1,4 @@
+flask 
+kafka-python 
+pydantic
+gunicorn
