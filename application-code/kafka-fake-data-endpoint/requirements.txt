@@ -1,4 +1,5 @@
-flask 
-kafka-python 
-pydantic
-gunicorn
+fastapi==0.95.1
+uvicorn==0.22.0
+pydantic==1.10.7
+kafka-python==2.0.2
+

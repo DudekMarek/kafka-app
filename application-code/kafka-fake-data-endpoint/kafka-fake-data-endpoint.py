@@ -2,9 +2,10 @@ import json
 import os
 import logging
 from enum import Enum
-from flask import Flask, request, jsonify
 from kafka import KafkaProducer
-from pydantic import BaseModel, EmailStr, ValidationError
+from pydantic import BaseModel, ValidationError
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 
 # Konfiguracja środowiska
 KAFKA_BOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVER", "localhost:9092")
@@ -50,8 +51,8 @@ def serialize_data(data: dict, encode_standard: str = "utf-8") -> bytes:
         logging.error(f"Serializacja nieudana: {e}")
         raise
 
-# Flask app
-app = Flask(__name__)
+# FastAPI app
+app = FastAPI()
 
 # Inicjalizacja producenta Kafka
 logging_setup()
@@ -61,28 +62,24 @@ except Exception as e:
     logging.error(f"Błąd tworzenia KafkaProducer: {e}")
     exit(1)
 
-@app.route("/healthz", methods=["GET"])
+@app.get("/healthz")
 def health_check():
-    return "OK", 200
+    return "OK"
 
-@app.route("/send", methods=["POST"])
-def send_to_kafka():
+@app.post("/send")
+def send_to_kafka(data: DataModel):
     try:
-        # Walidacja danych JSON
-        json_data = request.get_json()
-        data = DataModel(**json_data)
-
         # Serializacja i wysyłka do Kafka
         serialized = serialize_data(data.dict())
         producer.send(KAFKA_TOPIC, value=serialized)
         logging.info(f"Wysłano dane: {data.dict()}")
-        return jsonify({"status": "success", "message": "Data sent to Kafka"}), 200
+        return JSONResponse(status_code=200, content={"status": "success", "message": "Data sent to Kafka"})
 
     except ValidationError as ve:
-        return jsonify({"status": "error", "errors": ve.errors()}), 422
+        logging.error(f"Validation error: {ve.errors()}")
+        raise HTTPException(status_code=422, detail="Validation Error")
     except Exception as e:
         logging.error(f"Błąd wysyłania do Kafka: {e}")
-        return jsonify({"status": "error", "message": "Internal Server Error"}), 500
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+

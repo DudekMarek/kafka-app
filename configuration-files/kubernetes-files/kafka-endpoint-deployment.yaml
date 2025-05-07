@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: flask-kafka-producer
-          image: 192.168.1.174:5000/kafka-fake-data-endpoint:0.0.5
+          image: 192.168.1.174:5000/kafka-fake-data-endpoint:0.0.6
           ports:
             - containerPort: 5000
           envFrom:

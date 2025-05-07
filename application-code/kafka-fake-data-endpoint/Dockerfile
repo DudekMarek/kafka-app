@@ -9,4 +9,5 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY . /app
 
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5000", "kafka-fake-data-endpoint:app"]
+CMD ["uvicorn", "kafka-fake-data-endpoint:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "2"]
+
