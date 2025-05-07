@@ -1,14 +1,15 @@
 
+
 import requests
 import time
 import uuid
 import argparse
 from faker import Faker
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 ENDPOINT = "http://192.168.1.234:30080/send"
 
-def send_request(iteration, faker):
+def send_request(faker):
     payload = {
         "id": str(uuid.uuid4()),
         "name": faker.name(),
@@ -17,33 +18,46 @@ def send_request(iteration, faker):
         "message": faker.text()
     }
     try:
-        response = requests.post(ENDPOINT, json=payload)
-        print(f"Iteration: {iteration} Status: {response.status_code}")
-    except requests.exceptions.RequestException as e:
-        print(f"Iteration: {iteration} Error: {e}")
+        requests.post(ENDPOINT, json=payload)
+        return True
+    except requests.exceptions.RequestException:
+        return False
 
 def main(rate, duration, faker, max_workers=50):
     total_requests = int(rate * duration)
     interval = 1.0 / rate
+    start_time = time.time()
+    completed = 0
+    executor = ThreadPoolExecutor(max_workers=max_workers)
+    futures = []
 
-    print(f"Sending {total_requests} requests over {duration} seconds at rate {rate} req/sec using {max_workers} threads...")
+    print(f"Wysyłanie {total_requests} zapytań przez {duration} sekund z częstotliwością {rate} zapytań/sec")
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = []
-        start_time = time.time()
+    next_send_time = start_time
 
-        for i in range(total_requests):
-            future = executor.submit(send_request, i, faker)
-            futures.append(future)
-            # Rozkładanie w czasie
-            time.sleep(interval)
-
-        # Czekamy na wszystkie odpowiedzi
-        for future in as_completed(futures):
+    for _ in range(total_requests):
+        now = time.time()
+        if now < next_send_time:
+            time.sleep(next_send_time - now)
+        else:
             pass
 
-    print("Done.")
+        future = executor.submit(send_request, faker)
+        futures.append(future)
+        next_send_time += interval
 
+        # Co 1 sekunda — aktualizacja
+        if time.time() - start_time >= 1:
+            done = sum(1 for f in futures if f.done())
+            elapsed = time.time() - start_time
+            rps = done / elapsed
+            print(f"\rWykonane zapytania: {done}/{total_requests} | Realna ilość zapytań na sekundę: {rps:.2f}", end='', flush=True)
+
+    # Poczekaj na zakończenie wszystkich
+    for f in futures:
+        f.result()
+
+    print("\nZakończono")
 if __name__ == "__main__":
     faker = Faker()
     parser = argparse.ArgumentParser(description="Rate-limited sender to Flask Kafka endpoint")
