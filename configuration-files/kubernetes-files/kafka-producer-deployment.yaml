@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fake-data-producer
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fake-data-producer
+  template:
+    metadata:
+      labels:
+        app: fake-data-producer
+    spec:
+      containers:
+        - name: fake-data-producer
+          image: 192.168.1.174:5000/kafka-fake-data-producer:0.0.1
+          envFrom:
+            - configMapRef:
+                name: kafka-app-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+

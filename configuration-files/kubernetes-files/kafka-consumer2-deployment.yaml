@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fake-data-consumer2
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fake-data-consumer2
+  template:
+    metadata:
+      labels:
+        app: fake-data-consumer2
+    spec:
+      containers:
+        - name: consumer2
+          image: 192.168.1.174:5000/kafka-fake-data-consumer2:0.0.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-app-config
+                  key: KAFKA_BOOTSTRAP_SERVER
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-app-config
+                  key: LOG_LEVEL
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka-app-config
+                  key: DB_HOST
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-kafka-producer
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-kafka-producer
+  template:
+    metadata:
+      labels:
+        app: flask-kafka-producer
+    spec:
+      containers:
+        - name: flask-kafka-producer
+          image: 192.168.1.174:5000/kafka-fake-data-endpoint:0.0.6
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: kafka-app-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-kafka-producer-service
+  namespace: microservices
+spec:
+  type: NodePort
+  selector:
+    app: flask-kafka-producer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+      nodePort: 30080
